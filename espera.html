@@ -25,11 +25,13 @@
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
     <script>
         // Configuración de Firebase
         var firebaseConfig = {
             apiKey: "AIzaSyBU8tDQDJbu8KWdzYASrhjPc63a9XhSqwk",
             authDomain: "jopjoirdatabase.firebaseapp.com",
+            databaseURL: "https://jopjoirdatabase-default-rtdb.firebaseio.com",
             projectId: "jopjoirdatabase",
             storageBucket: "jopjoirdatabase.firebasestorage.app",
             messagingSenderId: "1005048549344",
@@ -37,6 +39,7 @@
         };
         // Inicializa Firebase
         firebase.initializeApp(firebaseConfig);
+        var database = firebase.database();
 
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
@@ -44,17 +47,14 @@
                 const uid = user.uid;
                 console.log("Usuario autenticado, UID: " + uid);
 
-                // Enviar una solicitud HTTP al servidor local de GameMaker usando XMLHttpRequest
-                var xhr = new XMLHttpRequest();
-                xhr.open("GET", `http://localhost:49695?uid=${uid}`, true);
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState == 4 && xhr.status == 200) {
-                        console.log("Solicitud enviada, respuesta:", xhr.responseText);
-                    } else if (xhr.readyState == 4) {
-                        console.log("Error al enviar la solicitud: " + xhr.status);
-                    }
-                };
-                xhr.send();
+                // Almacenar el UID en Realtime Database
+                database.ref('sessions/currentSession').set({ uid: uid })
+                    .then(() => {
+                        console.log("UID almacenado en Realtime Database");
+                    })
+                    .catch((error) => {
+                        console.log("Error al almacenar el UID en Realtime Database: " + error);
+                    });
             } else {
                 console.log("Usuario no autenticado");
                 // Redirigir a una página de error o manejar el error de otra manera
