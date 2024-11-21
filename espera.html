@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Por favor, espere...</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+        .message {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-size: 18px;
+            color: #4b6584;
+        }
+    </style>
+    <script>
+        function redirigirAlJuego() {
+            // Redirigir al juego usando un esquema de URL personalizado
+            window.location.href = "jopjoir://session_started";
+        }
+        // Simular una espera y luego redirigir
+        setTimeout(redirigirAlJuego, 5000); // Esperar 5 segundos
+    </script>
+</head>
+<body>
+    <div class="message">
+        <p>Por favor, espere mientras procesamos su inicio de sesión...</p>
+    </div>
+</body>
+</html>
