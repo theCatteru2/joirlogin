@@ -43,14 +43,18 @@
                 // Obtener el UID del usuario
                 const uid = user.uid;
                 console.log("Usuario autenticado, UID: " + uid);
-                // Enviar una solicitud HTTP al servidor local de GameMaker
-                fetch(`http://localhost:49695?uid=${uid}`, { mode: 'no-cors' })
-                    .then(response => {
-                        console.log("Solicitud enviada, respuesta:", response);
-                    })
-                    .catch(error => {
-                        console.log("Error al enviar la solicitud:", error);
-                    });
+
+                // Enviar una solicitud HTTP al servidor local de GameMaker usando XMLHttpRequest
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", `http://localhost:49695?uid=${uid}`, true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        console.log("Solicitud enviada, respuesta:", xhr.responseText);
+                    } else if (xhr.readyState == 4) {
+                        console.log("Error al enviar la solicitud: " + xhr.status);
+                    }
+                };
+                xhr.send();
             } else {
                 console.log("Usuario no autenticado");
                 // Redirigir a una página de error o manejar el error de otra manera
