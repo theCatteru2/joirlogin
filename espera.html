@@ -23,8 +23,21 @@
             color: #4b6584;
         }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
     <script>
-        // Simular una espera y luego redirigir
+        // Configuración de Firebase
+        var firebaseConfig = {
+            apiKey: "AIzaSyBU8tDQDJbu8KWdzYASrhjPc63a9XhSqwk",
+            authDomain: "jopjoirdatabase.firebaseapp.com",
+            projectId: "jopjoirdatabase",
+            storageBucket: "jopjoirdatabase.firebasestorage.app",
+            messagingSenderId: "1005048549344",
+            appId: "1:1005048549344:android:1386d1dd2bdfb7bc696585"
+        };
+        // Inicializa Firebase
+        firebase.initializeApp(firebaseConfig);
+
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
                 // Obtener el UID del usuario
