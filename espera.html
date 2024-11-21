@@ -24,12 +24,18 @@
         }
     </style>
     <script>
-        function redirigirAlJuego() {
-            // Redirigir al juego usando un esquema de URL personalizado
-            window.location.href = "jopjoir://session_started";
-        }
         // Simular una espera y luego redirigir
-        setTimeout(redirigirAlJuego, 1000); // Esperar 1 segundo
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                // Obtener el UID del usuario
+                const uid = user.uid;
+                // Redirigir al juego usando un esquema de URL personalizado con el UID
+                window.location.href = `jopjoir://session_started?uid=${uid}`;
+            } else {
+                // Redirigir a una página de error o manejar el error de otra manera
+                window.location.href = "error.html";
+            }
+        });
     </script>
 </head>
 <body>
