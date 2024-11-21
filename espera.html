@@ -44,7 +44,7 @@
                 const uid = user.uid;
                 console.log("Usuario autenticado, UID: " + uid);
                 // Enviar una solicitud HTTP al servidor local de GameMaker
-                fetch(`http://localhost:12345?uid=${uid}`, { mode: 'no-cors' })
+                fetch(`http://localhost:49695?uid=${uid}`, { mode: 'no-cors' })
                     .then(response => {
                         console.log("Solicitud enviada, respuesta:", response);
                     })
