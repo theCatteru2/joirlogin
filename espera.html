@@ -42,9 +42,17 @@
             if (user) {
                 // Obtener el UID del usuario
                 const uid = user.uid;
-                // Redirigir al juego usando un esquema de URL personalizado con el UID
-                window.location.href = `jopjoir://session_started?uid=${uid}`;
+                console.log("Usuario autenticado, UID: " + uid);
+                // Enviar una solicitud HTTP al servidor local de GameMaker
+                fetch(`http://localhost:12345?uid=${uid}`, { mode: 'no-cors' })
+                    .then(response => {
+                        console.log("Solicitud enviada, respuesta:", response);
+                    })
+                    .catch(error => {
+                        console.log("Error al enviar la solicitud:", error);
+                    });
             } else {
+                console.log("Usuario no autenticado");
                 // Redirigir a una página de error o manejar el error de otra manera
                 window.location.href = "error.html";
             }
