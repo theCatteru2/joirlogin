@@ -85,34 +85,39 @@
                     user.updateProfile({ displayName: username });
 
                     // 2. CREAR PERFIL COMPLETO (Base de datos permanente)
-                    // Aquí inicializamos todas las estadísticas en 0 para el futuro
+                    // Implementamos TU estructura exacta con info, stats, inventario y social
                     firebase.database().ref('users/' + user.uid).set({
-                        username: username,
-                        email: email,
+                        info: {
+                            username: username,
+                            email: email,
+                            fecha_registro: firebase.database.ServerValue.TIMESTAMP // Usa la hora real del servidor
+                        },
                         stats: {
                             nivel: 1,
                             xp: 0,
-                            racha_actual: 0,
                             racha_maxima: 0,
-                            logros_cantidad: 0
+                            logros_completados: 0,
+                            dias_jugados: 0
                         },
                         inventario: {
-                            monedas: 0,
-                            skins_cantidad: 0
+                            skins_cantidad: 1, // Skin por defecto
+                            enjoirs: 0,
+                            tickets: 0,
+                            tickets_joir: 0,
+                            dulucks: 0
                         },
                         social: {
                             amigos_cantidad: 0
-                        },
-                        fecha_registro: Date.now()
+                        }
                     });
 
-                    // 3. AVISAR A LA SESIÓN (Para que GameMaker sepa quién eres ahora mismo)
+                    // 3. AVISAR A LA SESIÓN (Para que GameMaker entre)
                     firebase.database().ref('sessions/currentSession').set({
                         uid: user.uid,
                         username: username,
                         email: email
                     }).then(() => {
-                        alert("¡Cuenta creada y estadísticas inicializadas!");
+                        alert("¡Cuenta creada! Tus Enjoirs y Dulucks están listos.");
                     });
                 })
                 .catch((error) => {
@@ -143,7 +148,7 @@
                         datosSession.username = user.displayName;
                     }
 
-                    // Usamos .update() para ser seguros, aunque .set() también serviría aquí
+                    // Usamos .update() para ser seguros y no borrar datos previos si los hubiera
                     firebase.database().ref('sessions/currentSession').update(datosSession)
                     .then(() => {
                         alert("¡Inicio de sesión exitoso!");
