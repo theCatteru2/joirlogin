@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro e Inicio de Sesión</title>
     <link rel="stylesheet" href="styles.css">
+    
     <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
+
     <script>
         // Configuración de Firebase
         var firebaseConfig = {
@@ -56,60 +59,100 @@
 
     <script>
         function registrarUsuario(event) {
-            event.preventDefault(); // Evita que el formulario se envíe de manera tradicional
+            event.preventDefault();
             var username = document.getElementById('username').value;
             var email = document.getElementById('email').value;
             var password = document.getElementById('password').value;
             var mensajeError = document.getElementById('mensajeError');
 
-            // Validar correo electrónico
+            // Validaciones
             var regexCorreo = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
             if (!regexCorreo.test(email)) {
-                mensajeError.textContent = "Por favor, ingrese un correo electrónico válido.";
+                mensajeError.textContent = "Por favor, ingrese un correo válido.";
                 return false;
             }
-
-            // Validar longitud de la contraseña
             if (password.length < 6) {
                 mensajeError.textContent = "La contraseña debe tener al menos 6 caracteres.";
                 return false;
             }
 
-            // Registrar usuario en Firebase
+            // Crear usuario en Authentication
             firebase.auth().createUserWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     var user = userCredential.user;
-                    user.updateProfile({
-                        displayName: username
+                    
+                    // 1. Guardar nombre en Auth (interno)
+                    user.updateProfile({ displayName: username });
+
+                    // 2. CREAR PERFIL COMPLETO (Base de datos permanente)
+                    // Aquí inicializamos todas las estadísticas en 0 para el futuro
+                    firebase.database().ref('users/' + user.uid).set({
+                        username: username,
+                        email: email,
+                        stats: {
+                            nivel: 1,
+                            xp: 0,
+                            racha_actual: 0,
+                            racha_maxima: 0,
+                            logros_cantidad: 0
+                        },
+                        inventario: {
+                            monedas: 0,
+                            skins_cantidad: 0
+                        },
+                        social: {
+                            amigos_cantidad: 0
+                        },
+                        fecha_registro: Date.now()
+                    });
+
+                    // 3. AVISAR A LA SESIÓN (Para que GameMaker sepa quién eres ahora mismo)
+                    firebase.database().ref('sessions/currentSession').set({
+                        uid: user.uid,
+                        username: username,
+                        email: email
                     }).then(() => {
-                        alert("¡Registro exitoso!");
+                        alert("¡Cuenta creada y estadísticas inicializadas!");
                     });
                 })
                 .catch((error) => {
-                    var errorCode = error.code;
-                    var errorMessage = error.message;
-                    mensajeError.textContent = errorMessage;
+                    mensajeError.textContent = error.message;
                 });
 
             return true;
         }
 
         function iniciarSesion(event) {
-            event.preventDefault(); // Evita que el formulario se envíe de manera tradicional
+            event.preventDefault();
             var email = document.getElementById('emailLogin').value;
             var password = document.getElementById('passwordLogin').value;
             var mensajeErrorLogin = document.getElementById('mensajeErrorLogin');
 
-            // Iniciar sesión en Firebase
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
-                    alert("¡Inicio de sesión exitoso!");
-                    window.location.href = "espera.html"; // Redirigir a la página de espera
+                    var user = userCredential.user;
+
+                    // Preparamos los datos para enviar a 'currentSession'
+                    var datosSession = {
+                        uid: user.uid,
+                        email: user.email
+                    };
+
+                    // Si Auth tiene el nombre guardado, lo agregamos para asegurar que llegue a GM
+                    if (user.displayName) {
+                        datosSession.username = user.displayName;
+                    }
+
+                    // Usamos .update() para ser seguros, aunque .set() también serviría aquí
+                    firebase.database().ref('sessions/currentSession').update(datosSession)
+                    .then(() => {
+                        alert("¡Inicio de sesión exitoso!");
+                        // Redirigimos a espera.html que se encargará de mantener la sesión viva
+                        window.location.href = "espera.html"; 
+                    });
                 })
                 .catch((error) => {
-                    var errorCode = error.code;
-                    var errorMessage = error.message;
-                    mensajeErrorLogin.textContent = errorMessage;
+                    mensajeErrorLogin.textContent = error.message;
                 });
 
             return true;
